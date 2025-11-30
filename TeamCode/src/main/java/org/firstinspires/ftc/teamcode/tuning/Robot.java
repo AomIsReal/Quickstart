@@ -19,7 +19,7 @@ public abstract class Robot extends LinearOpMode {
     public IMU imu;
     public VisionPortal visionPortal;
     public Servo AG ;
-    public DcMotorEx SL, SR;
+    public DcMotorEx FL, FR, BL, BR; //SL, SR
     public int TargetVelo = 0;
     public final double[] tileSize = {60.96, 60.96};
     public final int Counts_Per_Gobilda5000 = 28;
@@ -30,7 +30,9 @@ public abstract class Robot extends LinearOpMode {
 
     public void Initialize() {
         imu = hardwareMap.get(IMU.class,       "imu");
-        SL  = hardwareMap.get(DcMotorEx.class, "SL");    SR  = hardwareMap.get(DcMotorEx.class, "SR");
+        FL  = hardwareMap.get(DcMotorEx.class, "FL");    FR  = hardwareMap.get(DcMotorEx.class, "FR");
+        BL  = hardwareMap.get(DcMotorEx.class, "BL");    BR  = hardwareMap.get(DcMotorEx.class, "BR");
+//        SL  = hardwareMap.get(DcMotorEx.class, "SL");    SR  = hardwareMap.get(DcMotorEx.class, "SR");
 
         // Initialize IMU
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -39,18 +41,24 @@ public abstract class Robot extends LinearOpMode {
         // Reverse Servo
 
         // setMode Motors
-        SL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        SR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        SL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        SR.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+//        SL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        SR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        SL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+//        SR.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         // SetBehavior Motors
-        SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
     }
     public void Dual_SHMotor(double Power) {
-        SL.setPower(Power);
-        SR.setPower(Power);
+//        SL.setPower(Power);
+//        SR.setPower(Power);
     }
 }
