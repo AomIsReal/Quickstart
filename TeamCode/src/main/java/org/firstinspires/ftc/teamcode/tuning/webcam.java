@@ -23,7 +23,9 @@ public class webcam {
     private List<AprilTagDetection> detectedTags = new ArrayList<>();
 
     private Telemetry telemetry;
-
+    public List<AprilTagDetection> getAllDetections() {
+        return aprilTagProcessor.getDetections();
+    }
     public void init(HardwareMap hwMap , Telemetry telemetry) {
         this.telemetry = telemetry;
 

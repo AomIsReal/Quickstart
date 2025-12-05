@@ -5,15 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-@Autonomous(name = "Webcam AprilTag ExampleXX")
-public class webcamExample extends OpMode {
+import java.util.List;
 
+@Autonomous(name = "Webcam AprilTag – Detect All Tags")
+public class webcamExample extends OpMode {
 
     webcam aprilTagWebcam = new webcam();
 
     @Override
     public void init() {
-
         aprilTagWebcam.init(hardwareMap, telemetry);
         telemetry.addLine("Initializing webcam...");
         telemetry.update();
@@ -24,20 +24,25 @@ public class webcamExample extends OpMode {
 
 
         aprilTagWebcam.update();
-
-
-        AprilTagDetection id20 = aprilTagWebcam.getTagBySpecificId(24);
-        aprilTagWebcam.displayDetectionTelemetry(id20);
-        telemetry.addLine("=== AprilTag Detection ===");
-
-        if (id20 != null) {
-            telemetry.addLine("✔ Found AprilTag ID 20");
+        List<AprilTagDetection> allTags = aprilTagWebcam.getAllDetections();
+        telemetry.addLine("=== AprilTag Detected List ===");
+        if (allTags.isEmpty())
+        {
+            telemetry.addLine("❌ No AprilTag detected");
         }
         else
         {
-            telemetry.addLine("❌ ID 20 not found");
+            telemetry.addData("Total Tags", allTags.size());
+
+
+            for (AprilTagDetection tag : allTags) {
+                telemetry.addLine("-----------------------");
+                aprilTagWebcam.displayDetectionTelemetry(tag);
+            }
         }
 
         telemetry.update();
     }
+
+
 }
