@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
@@ -14,11 +15,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(5.2)
+            .mass(5.5)
             .forwardZeroPowerAcceleration(-35.62513223157471)
             .lateralZeroPowerAcceleration(-44.91665550466838)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.057, 0.00, 0.014, 0.024))
-            .headingPIDFCoefficients(new PIDFCoefficients(0.71, 0.0, 0.002, 0.025))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.6, 0.0, 0.002, 0.025))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025,0,0.00001,0.6,0.01))
+            .centripetalScaling(0.0005)
             ;
 
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -35,12 +38,11 @@ public class Constants {
             .yVelocity(39.94684955104993);
 
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
     public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
-            .forwardTicksToInches(.001989436789)
-            .strafeTicksToInches(.001989436789)
-            .turnTicksToInches(.001989436789)
+            .forwardTicksToInches(0.00296830299772)
+            .strafeTicksToInches(0.00296830299772)
+            .turnTicksToInches(0.00296830299772)
             .leftPodY(4)
             .rightPodY(-4)
             .strafePodX(-3.5)
@@ -52,6 +54,15 @@ public class Constants {
             .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP));
+
+
+    public static PathConstraints pathConstraints = new PathConstraints(0.99,
+            100,
+            1.4,
+            1);
+
+
+
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
