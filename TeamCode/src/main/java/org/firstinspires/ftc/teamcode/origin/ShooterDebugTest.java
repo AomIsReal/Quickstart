@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode.origin;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.IgnoreConfigurable;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
 @Configurable
 @TeleOp(name = "Shooter Debug Test")
 public class ShooterDebugTest extends Robot {
+
+    @IgnoreConfigurable
+    static TelemetryManager telemetryM;
 
     public double error;
     public static int TargetVelo = 1500;
@@ -17,7 +23,7 @@ public class ShooterDebugTest extends Robot {
     private Controller controller;
 
     public void ShooterControl() {
-//        Dual_SHMotor(Range.clip(controller.Calculate(TargetVelo, SR.getVelocity()),0, 1));
+        Dual_SHMotor(Range.clip(controller.Calculate(TargetVelo, SR.getVelocity()),0, 1));
 //        SL.setVelocity(TargetVelo);
 //        SR.setVelocity(TargetVelo);
     }
@@ -48,14 +54,9 @@ public class ShooterDebugTest extends Robot {
             if (gamepad1.x) {
                 BR.setPower(0.1);
             }
-//            telemetry.addData("Status", "Press A to stop shooter");
-//            telemetry.addData("Wheel Velocity", SR.getVelocity());
-//            telemetry.addData("Wheel Velocity", SL.getVelocity());
-//            telemetry.addData("Target Velocity", TargetVelo);
-//            telemetry.addData("left Power", SL.getPower());
-//            telemetry.addData("right Power", SR.getPower());
-//            telemetry.addData("Error", TargetVelo - SR.getVelocity());
-//            telemetry.update();
+            telemetryM.debug("Shooter Velocity: " + SR.getVelocity());
+            telemetryM.debug("Target Velocity: " + TargetVelo);
+            telemetryM.update(telemetry);
         }
     }
 }
