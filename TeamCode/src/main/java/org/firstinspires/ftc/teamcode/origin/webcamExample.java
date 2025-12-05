@@ -7,7 +7,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.List;
 
-@Autonomous(name = "Webcam AprilTag – Detect All Tags")
+@Autonomous(name = "Webcam AprilTag")
 public class webcamExample extends OpMode {
 
     webcam aprilTagWebcam = new webcam();
