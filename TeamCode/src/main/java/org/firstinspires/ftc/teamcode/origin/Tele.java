@@ -28,9 +28,9 @@ public  class Tele extends Robot {
         // Initialize Robot
         Initialize();
 
-        controller = new Controller(1.0, 0.05, 0.1, 0 , 0.2, toRadian(0.75));
+        controller = new Controller(1.0, 0.05, 0.1, 0 , 0.2, toRadian(0.75), controller.Main_i_max, controller.Main_i_min);
 
-
+        setpoint = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         setpoint = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
     }
@@ -56,8 +56,8 @@ public  class Tele extends Robot {
         lastRXtime = x != 0 ? CurrentTime : lastRXtime;
         // Denominator for division to get no more than 1
         double d = Math.max(Math.abs(x2) + Math.abs(y2) + Math.abs(r), 0.5);
-        MovePower((y2 - x2 - r) / d, (y2 + x2 + r) / d,
-                (y2 + x2 - r) / d,  (y2 - x2 + r) / d);
+//        MovePower((y2 - x2 - r) / d, (y2 + x2 + r) / d,
+//                (y2 + x2 - r) / d,  (y2 - x2 + r) / d);
         telemetry.addData("yaw", toDegree(yaw));
         telemetry.addData("setpoint", toDegree(setpoint));
         telemetry.addData("error", controller.Error);
