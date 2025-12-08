@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 import static org.firstinspires.ftc.teamcode.origin.ShooterDebugTest.follower;
 
 //import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @Configurable
@@ -22,11 +23,11 @@ public class ShooterDebugTest extends Robot {
 
     // Panels adjustable parameters
     public static int TargetVelo = 1500;
-    public static double Kp = 0.00005;
-    public static double Ki = 0.0004;
-    public static double Kd = 0.000003;
-    public static double Kf = 0.003184;
-    public static double i_max = -1.0;
+    public static double Kp = 0.02;
+    public static double Ki = 0.0000000001;
+    public static double Kd = 0.05;
+    public static double Kf = 0.00048;
+    public static double i_max = 1.0;
     public static double i_min = -1.0;
     private double servoPos = 0.5;
 
@@ -41,16 +42,16 @@ public class ShooterDebugTest extends Robot {
      * Panels internally expects a follower, but your shooter test does not use pathing.
      * So we give Panels a dummy follower that always returns a valid pose (0,0,0).
      */
-//    private void supplyDummyFollowerForPanels() {
-//        if (follower == null) {
-//            follower = Constants.createFollower(hardwareMap);
-//            PanelsConfigurables.INSTANCE.refreshClass(this);
-//        } else {
-//            follower = Constants.createFollower(hardwareMap);
-//        }
-//
-//        follower.setStartingPose(new Pose());
-//    }
+    private void supplyDummyFollowerForPanels() {
+        if (follower == null) {
+            follower = Constants.createFollower(hardwareMap);
+            PanelsConfigurables.INSTANCE.refreshClass(this);
+        } else {
+            follower = Constants.createFollower(hardwareMap);
+        }
+
+        follower.setStartingPose(new Pose());
+    }
 
     // PIDF wrapper for your shooter controller
     public void PIDF(double[] P, double[] I, double[] D, double F) {
@@ -58,17 +59,17 @@ public class ShooterDebugTest extends Robot {
         TurretController = new Controller(P[1], I[1], D[1], 0, 0.0, 2, 1.0, -1.0);
     }
 
-    // Runs dual-motor flywheel (SR + SL)
-    private void ShooterControl() {
+    public void ShooterControl() {
         double power = ShooterController.Calculate(TargetVelo, SR.getVelocity());
         Dual_SHMotor(Range.clip(power, 0, 1));
-    }
+//        Dual_SHMotor(TargetVelo);
 
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Prevent Pedro/Panels crash
-//        supplyDummyFollowerForPanels();
+        supplyDummyFollowerForPanels();
         // Normal robot init
         Initialize();
         // Create PIDF controller
@@ -95,18 +96,21 @@ public class ShooterDebugTest extends Robot {
                 sleep(70);
             }
 
-            double turpos = AutoAim(TurretController);
-            SetServoPos(turpos, TL, TR);
+
+
+//            AutoAim();
+            SetServoPos(TurPos, TL, TR);
             // Apply PIDF shooter control
             ShooterControl();
+            IT.setPower(0);
 
             // Panels debug view
-//            telemetryM.debug("Shooter PIDF Active");
-//            telemetryM.debug("Target Velocity  : " + TargetVelo);
-//            telemetryM.debug("Left Velocity    : " + SL.getVelocity());
-//            telemetryM.debug("Right Velocity   : " + SR.getVelocity());
-//            telemetryM.debug("Kp: " + Kp + " Ki: " + Ki + " Kd: " + Kd + " Kf: " + Kf);
-//            telemetryM.debug("Integral " + ShooterController.Integral);
+            telemetryM.debug("Shooter PIDF Active");
+            telemetryM.debug("Target Velocity  : " + TargetVelo);
+            telemetryM.debug("Left Velocity    : " + SL.getVelocity());
+            telemetryM.debug("Right Velocity   : " + SR.getVelocity());
+            telemetryM.debug("Kp: " + Kp + " Ki: " + Ki + " Kd: " + Kd + " Kf: " + Kf);
+            telemetryM.debug("Integral " + ShooterController.Integral);
             telemetryM.update(telemetry);
         }
     }
