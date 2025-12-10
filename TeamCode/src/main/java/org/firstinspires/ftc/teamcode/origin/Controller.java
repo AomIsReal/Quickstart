@@ -28,6 +28,7 @@ public class Controller {
         this.Kf = Kf;
         this.i_max = i_max;
         this.i_min = i_min;
+        this.Reset();
     }
 
     public double Calculate(double setpoint, double current) {
@@ -57,4 +58,12 @@ public class Controller {
     }
 
     public boolean atSetpoint() { return Math.abs(this.Error) < this.ErrorTolerance; }
+
+    public void Reset() {
+        this.LastTime = 0;
+        this.Error = 0;
+        this.LastError = 0;
+        this.Integral = 0;
+        this.Derivative = 0;
+    }
 }

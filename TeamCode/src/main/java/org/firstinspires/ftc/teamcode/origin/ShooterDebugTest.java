@@ -61,7 +61,7 @@ public class ShooterDebugTest extends Robot {
 
     public void ShooterControl() {
         double power = ShooterController.Calculate(TargetVelo, SR.getVelocity());
-        Dual_SHMotor(Range.clip(power, 0, 1));
+//        Dual_SHMotor(Range.clip(power, 0, 1));
 //        Dual_SHMotor(TargetVelo);
 
     }
@@ -82,7 +82,7 @@ public class ShooterDebugTest extends Robot {
         while (opModeIsActive()) {
             // Manual control for testing
             if (gamepad1.a) {
-                Dual_SHMotor(0);
+                ShooterControl();
                 TargetVelo = 0;
             }
 

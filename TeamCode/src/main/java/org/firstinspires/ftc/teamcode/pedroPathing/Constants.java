@@ -18,11 +18,12 @@ public class Constants {
             .mass(9.8)
             .forwardZeroPowerAcceleration(-32.260681903807516)
             .lateralZeroPowerAcceleration(-58.601645424315514)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.07, 0.00, 0.005, 0.024))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.03, 0.00, 0.003, 0.024))
             .headingPIDFCoefficients(new PIDFCoefficients(0.9, 0.0, 0.002, 0.025))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025,0,0.00005,0.6,0.006))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025,0,0.00005,0.6,0.008))
             .centripetalScaling(0.0005)
-            .holdPointHeadingScaling(0.2)
+            .holdPointHeadingScaling(0.05)
+            .holdPointTranslationalScaling(0.3)
             ;
 
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -59,8 +60,8 @@ public class Constants {
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99,
             100,
-            1,
-            1);
+            0.95,
+            1.1);
 
 
 
