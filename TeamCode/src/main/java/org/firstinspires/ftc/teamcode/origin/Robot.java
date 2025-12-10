@@ -78,6 +78,7 @@ public abstract class Robot extends LinearOpMode {
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                 RevHubOrientationOnRobot.UsbFacingDirection .UP)));
+        sleep(50);
         // Reverse Servo
 
         // setMode Motors
@@ -167,24 +168,26 @@ public abstract class Robot extends LinearOpMode {
             } else {
                 for (AprilTagDetection tag : cam1.getAllDetections()) {
                     if ((tag.id == 20) || (tag.id == 24)) {
-                        double bearing = tag.ftcPose.bearing + 3.171;
-                        if (Math.abs(bearing) > 1.5) {
+                        double bearing = tag.ftcPose.bearing + 3.173;
+                        if (Math.abs(bearing) > 1.2) {
 
                             TurPos += bearing * 0.0007;
 
                             // Safety: Ensure we don't tell the servo to go past physical limits
                             TurPos = Math.max(0.0, Math.min(1.0, TurPos));
                         }
+
+
                         TurPos = Range.clip(TurPos, 0, 1);
                         SetServoPos(TurPos, TL, TR);
                         telemetry.addData("id", tag.id);
                         telemetry.addData("Range", tag.ftcPose.range);
-//                        telemetry.update();
+                        telemetry.update();
 //                    SetServoPos(TurPos, TL, TR);
                     }
                 }
             }
-        SetServoPos(HoodPos, AG);
+//        SetServoPos(HoodPos, AG);
     }
 
 
@@ -214,16 +217,17 @@ public abstract class Robot extends LinearOpMode {
 //        }
 //    }
 
-    public void WaitForVelo(int Tvelo, int nloop, double EndLoopTime, Controller controller){
+    public void WaitForVelo(int Tvelo, int nloop, double EndLoopTime, Controller controller, boolean isAutoAim){
         TargetVelo = Tvelo;
         Dual_SHMotor();
+        while (!AtTargetRange(SR.getVelocity(), Tvelo, Chalee));
         for (int n = 0; n < nloop; n++){
             double loopStart = System.nanoTime() * 1E-9;
             double checkStartTime = loopStart;
             int stableCount = 0;
-            int requiredStableCount = 5;
+            int requiredStableCount = 4;
             while (true) {
-                AutoAim();
+                if (isAutoAim) AutoAim();
                 // เปลี่ยนเป็นเช็คเวลาให้เป็นหลัก — หยุดเมื่อเกิน EndLoopTime
                 double elapsed = System.nanoTime() * 1E-9 - loopStart;
                 if (AtTargetRange(SR.getVelocity(), Tvelo, Chalee)) {
@@ -234,7 +238,10 @@ public abstract class Robot extends LinearOpMode {
 
                 if (stableCount >= requiredStableCount) {
                     // คิดว่า stable แล้ว ให้ทำ action แล้วออก
-                    SetServoPos(0.92, BubBlebee);
+                    SetServoPos(0.907, BubBlebee);
+                    if (nloop == 2){
+                        SetServoPos(0.87, BubBlebee);
+                    }
                     IT.setPower(-1);
                     sleep(500);
                     IT.setPower(0);
@@ -244,7 +251,10 @@ public abstract class Robot extends LinearOpMode {
 
                 if (elapsed > EndLoopTime) {
                     // เวลาหมด ให้ทำ actionแล้วออก
-                    SetServoPos(0.92, BubBlebee);
+                    SetServoPos(0.907, BubBlebee);
+                    if (nloop == 2){
+                        SetServoPos(0.87, BubBlebee);
+                    }
                     IT.setPower(-1);
                     sleep(500);
                     IT.setPower(0);

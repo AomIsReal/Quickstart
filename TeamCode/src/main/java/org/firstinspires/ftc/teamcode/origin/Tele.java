@@ -4,8 +4,10 @@ import static org.firstinspires.ftc.teamcode.origin.Utilize.WrapRads;
 import static org.firstinspires.ftc.teamcode.origin.Utilize.toRadian;
 import static org.firstinspires.ftc.teamcode.origin.Utilize.toDegree;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -17,6 +19,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 public  class Tele extends Robot {
 
     private Controller controller;
+    private boolean isAutoAim = true;
 
     // Variables
     String Status;
@@ -87,7 +90,12 @@ public  class Tele extends Robot {
             while (opModeIsActive()) {
                 Odomentry();
                 Movement();
-                AutoAim();
+
+                if(gamepad1.left_stick_button) isAutoAim = true;
+                else if (gamepad1.right_stick_button) isAutoAim = false;
+
+                if(isAutoAim) AutoAim();
+
                 if (gamepad1.right_trigger > 0.2) {
                     InTakeIN();
                 }
@@ -97,27 +105,38 @@ public  class Tele extends Robot {
                 }
 
                 if (gamepad1.right_bumper) {
+                    SL.setVelocity(1150);
+                    SR.setVelocity(1150);
                     SetServoPos(HoodPos, AG);
                     M = true;
+                    if (gamepad1.cross) {
+                        TargetVelo = 1100;
+                        HoodPos = 0;
+                        SetServoPos(HoodPos, AG);
+                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
+                    }
 
                     if (gamepad1.square) {
                         TargetVelo = 1250;
                         HoodPos = 0.5;
                         SetServoPos(HoodPos, AG);
-                        WaitForVelo(TargetVelo, 3, 1, controller);
+                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
 
                     }
                     if (gamepad1.triangle) {
                         TargetVelo = 1500;
                         HoodPos = 0.5;
+                        SetServoPos(HoodPos, AG);
+                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
+
                     }
                     if (gamepad1.circle) {
-                        TargetVelo = 2000;
+                        TargetVelo = 1630;
                         HoodPos = 1.0;
+                        SetServoPos(HoodPos, AG);
+                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
                     }
                 }
-
-
 
 
                 if (gamepad1.rightBumperWasReleased()){
@@ -144,6 +163,12 @@ public  class Tele extends Robot {
                 telemetry.addData("Current velo ", SR.getVelocity());
                 telemetry.update();
                 if(gamepad1.options) {
+                    imu.close();
+                    sleep(50);
+                    imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
+                            RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                            RevHubOrientationOnRobot.UsbFacingDirection .UP)));
+                    sleep(50);
                     imu.resetYaw();
                     setpoint = 0;
                 }

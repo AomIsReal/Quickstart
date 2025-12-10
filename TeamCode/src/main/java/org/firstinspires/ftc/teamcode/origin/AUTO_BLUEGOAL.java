@@ -21,7 +21,7 @@ import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 
-@Autonomous(name = "AUTO_BLUEGOAL", group = "Autonomous")
+@Autonomous(name = "AUTO_BLUEGOAL", group = "Autonomous", preselectTeleOp = "Tele")
 @Configurable // Panels
 public class AUTO_BLUEGOAL extends Robot {
 
@@ -30,6 +30,7 @@ public class AUTO_BLUEGOAL extends Robot {
     private int pathState; // Current autonomous path state (state machine)
     private Timer pathTimer, actionTimer, opmodeTimer;
     boolean Sho = false;
+    public MecanumConstants drive;
 
 
     public boolean Busy = false;
@@ -39,10 +40,8 @@ public class AUTO_BLUEGOAL extends Robot {
         Initialize();
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
-//        drive = Constants.
-
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(20.5, 122.51393948444976, Math.toRadians(144)));
+        follower.setStartingPose(new Pose(36, 135, Math.toRadians(90)));
         BuildPaths();
         pathTimer = new Timer();
 
@@ -58,21 +57,21 @@ public class AUTO_BLUEGOAL extends Robot {
     public void BuildPaths() {
         Shoot = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(20.500, 122.514), new Pose(46.000, 96.000))
+                        new BezierLine(new Pose(36, 135), new Pose(46.000, 96.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(144), Math.toRadians(144))
                 .build();
 
         GoGPP = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(46.0, 96.0), new Pose(46.0,84.0))
+                        new BezierLine(new Pose(46.0, 96.0), new Pose(46.0,80.0))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(144),Math.toRadians(180))
                 .build();
 
         collectGPP = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(46.0, 84.0), new Pose(17.000, 84.0))
+                        new BezierLine(new Pose(46.0, 80.0), new Pose(14.000, 80.0))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
@@ -80,7 +79,7 @@ public class AUTO_BLUEGOAL extends Robot {
 
         ShootGPP = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(15.613, 83.982), new Pose(46.000, 96.000))
+                        new BezierLine(new Pose(14.000, 80.00), new Pose(46.000, 96.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(144), Math.toRadians(144))
                 .build();
@@ -88,8 +87,8 @@ public class AUTO_BLUEGOAL extends Robot {
         GOPGP = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(62.000, 84.000),
-                                new Pose(46.000, 60.000)
+                                new Pose(46, 84.000),
+                                new Pose(42, 60.000)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
@@ -97,7 +96,7 @@ public class AUTO_BLUEGOAL extends Robot {
 
         collectPGP = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(42.000, 60.000), new Pose(17.000, 60.000))
+                        new BezierLine(new Pose(42.000, 60.000), new Pose(14.000, 60.000))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
@@ -105,7 +104,7 @@ public class AUTO_BLUEGOAL extends Robot {
         openGate = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(15.000, 60.000), new Pose(15.000, 65.000)
+                                new Pose(14.00, 60.000), new Pose(15.000, 65.000)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
@@ -130,7 +129,7 @@ public class AUTO_BLUEGOAL extends Robot {
 
         collectPPG = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(42.000, 35.500), new Pose(17.000, 35.500))
+                        new BezierLine(new Pose(42.000, 35.500), new Pose(14.000, 35.500))
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
@@ -155,7 +154,7 @@ public class AUTO_BLUEGOAL extends Robot {
         collectHuman = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(9.000, 47.742), new Pose(9.000, 10.000))
+                        new BezierLine(new Pose(10.000, 47.742), new Pose(9.000, 10.000))
                 )
                 .setTangentHeadingInterpolation()
                 .build();
@@ -189,57 +188,57 @@ public class AUTO_BLUEGOAL extends Robot {
             case 0:
                 TargetVelo = 1200;
                 Dual_SHMotor();
-                follower.followPath(Shoot, true);
+                follower.followPath(Shoot,1.0, true);
                 setPathState(1);
                 break;
             case 1:
-                if (!follower.isBusy()) {
-                    WaitForVelo(1150, 3, 1, null);
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 7.0) {
+                    WaitForVelo(1150, 3, 1, null, true);
                     InTakeIN();
-                    follower.followPath(collectGPP, true);
+                    follower.followPath(collectGPP,0.8,  true);
                     setPathState(14);
                 }
                 break;
             case 2:
-                if (!follower.isBusy()) {
-                    follower.followPath(ShootGPP, true);
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
+                    follower.followPath(ShootGPP, 1.0, true);
                     setPathState(3);
 
                 }
                 break;
             case 3:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 7.0) {
                     IT.setPower(0);
-                    WaitForVelo(1150, 3, 1, null);
+                    WaitForVelo(1150, 3, 1, null, true);
                     InTakeIN();
-                    follower.followPath(GOPGP, true);
+                    follower.followPath(GOPGP, 1.0, true);
                     setPathState(4);
                 }
                 break;
             case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
                     /* Grab Sample */
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(collectPGP, true);
+                    follower.followPath(collectPGP, 0.8,  true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
                     /* Score Sample */
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(ShootPGP, true);
+                    follower.followPath(ShootPGP, 1.0,true);
 
                     setPathState(6);
                 }
                 break;
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 7.0) {
                     IT.setPower(0);
-                    WaitForVelo(1150, 3, 1, null);
+                    WaitForVelo(1150, 3, 1, null, true);
                     /* Grab Sample */
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(openGate, true);
@@ -247,56 +246,58 @@ public class AUTO_BLUEGOAL extends Robot {
                 }
                 break;
             case 7:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
                     InTakeIN();
-                    follower.followPath(GOPPG, true);
+                    follower.followPath(GOPPG,1.0,  true);
                     setPathState(8);
                 }
-
+                break;
             case 8:
-                if(!follower.isBusy()) {
-
-                    follower.followPath(collectPPG, true);
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
+                    follower.followPath(collectPPG,0.8,  true);
                     setPathState(9);
                 }
-
+                break;
             case 9:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (!follower.isBusy()) {
-                    follower.followPath(ShootPPG, true);
+                if (!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
+                    follower.followPath(ShootPPG, 1.0, true);
                     setPathState(10);
                 }
                 break;
-
             case 10:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 7.0) {
                     IT.setPower(0);
-                    WaitForVelo(1150, 3, 1, null);
-                    follower.followPath(GoHuman, true);
+                    WaitForVelo(1150, 3, 1, null, true);
+                    follower.followPath(GoHuman, 1.0, true);
                     setPathState(11);
                 }
+                break;
             case 11:
-                if(!follower.isBusy()) {
-                    follower.followPath(collectHuman, true);
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
+                    follower.followPath(collectHuman, 0.75, true);
                     setPathState(12);
                 }
+                break;
             case 12:
-                if(!follower.isBusy()) {
-                    follower.followPath(shoot, true);
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
+                    follower.followPath(shoot, 1.0, true);
                     setPathState(13);
                 }
+                break;
             case 13:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 7.0) {
                     IT.setPower(0);
-                    WaitForVelo(1150, 3, 1, null);
-                    follower.followPath(goforspace, true);
+                    WaitForVelo(1150, 3, 1, null, true);
+                    follower.followPath(goforspace,1.0, true);
                     setPathState(-1);
                 }
+                break;
             case 14:
-                if(!follower.isBusy()) {
-                    follower.followPath(GoGPP, true);
+                if(!follower.isBusy() || pathTimer.getElapsedTimeSeconds() > 3.0) {
+                    follower.followPath(GoGPP, 1.0,  true);
                     setPathState(2);
                 }
+                break;
         }
     }
 
@@ -309,16 +310,14 @@ public class AUTO_BLUEGOAL extends Robot {
         Init();
         waitForStart();
         if (opModeIsActive()) {
+            double startTime = System.nanoTime() * 1E-9;
             setPathState(0);
             HoodPos = 0.5;
             SetServoPos(HoodPos, AG);
             while (opModeIsActive()) {
+                if(System.nanoTime() * 1E-9 - startTime > 28.0) setPathState(13);
 
                 follower.update();
-                if(pathState == 10) {
-                    setPathState(13);
-                }
-
                 autonomousPathUpdate();
                 AutoAim();
 

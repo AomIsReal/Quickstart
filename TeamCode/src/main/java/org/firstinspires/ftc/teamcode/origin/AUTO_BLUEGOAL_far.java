@@ -13,15 +13,27 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.ftc.FollowerBuilder;
+import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.ftc.localization.Encoder;
+import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 
-@Autonomous(name = "TestAuto", group = "Autonomous")
+@Autonomous(name = "AUTO_BLUEGOAL_far6ball", group = "Autonomous", preselectTeleOp = "Tele")
 @Configurable // Panels
-public class TestAuto extends Robot {
+public class AUTO_BLUEGOAL_far extends Robot {
 
     private TelemetryManager panelsTelemetry; // Panels Telemetry instance
     public Follower follower; // Pedro Pathing follower instance
     private int pathState; // Current autonomous path state (state machine)
     private Timer pathTimer, actionTimer, opmodeTimer;
+    boolean Sho = false;
+    public MecanumConstants drive;
+
+
+    public boolean Busy = false;
 
     private void Init() {
         // Initialize Robot
@@ -29,57 +41,68 @@ public class TestAuto extends Robot {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
+        follower.setStartingPose(new Pose(60, 12, Math.toRadians(90)));
         BuildPaths();
         pathTimer = new Timer();
+
+        SetServoPos(0.67, TL, TR);
+        SetServoPos(1.0, AG);
 
         panelsTelemetry.debug("Status", "Initialized");
         panelsTelemetry.update(telemetry);
     }
 
-
-    public PathChain path1, path2, path3;
+    public PathChain Shoot1, Shoot2, Park3ball;
 
     public void BuildPaths() {
-        path1 = follower.pathBuilder()
+        Shoot1 = follower
+                .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(0, 0), new Pose(24, 0))
+                        new BezierLine(new Pose(60.000, 12.000), new Pose(60.000, 10.000))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(85))
                 .build();
 
-        path2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(24, 0), new Pose(24, -24)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+        Park3ball = follower
+                .pathBuilder()
+                .addPath(
+                        new BezierLine(new Pose(60.000, 10.000),new Pose(36.000, 12.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
                 .build();
 
-        path3 = follower.pathBuilder()
-                .addPath(new BezierCurve(new Pose(24, -24), new Pose(0, 0)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+
+        Shoot2 = follower
+                .pathBuilder()
+                .addPath(
+                        new BezierLine(new Pose(10.000, 9.000), new Pose(60.000, 12.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(105))
                 .build();
+
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(path1, true);
-                TargetVelo = 1500;
-                Dual_SHMotor();
-                WaitForVelo(1500, 3, 2, null, false);
+                follower.followPath(Shoot1,1.0,  true);
                 setPathState(1);
                 break;
-//            case 1:
-//                if (!follower.isBusy()) {
-//                    follower.followPath(path2, true);
-//                    setPathState(2);
-//                    sleep(1000);
-//                }
-//                break;
+            case 1:
+                if (!follower.isBusy()) {
+                    SetServoPos(1.0, AG);
+
+                    WaitForVelo(1630, 4, 5, null, false);
+                    follower.followPath(Park3ball,1.0,  true);
+                    setPathState(-1);
+                }
+                break;
 //            case 2:
 //                if (!follower.isBusy()) {
-//                    follower.followPath(path3, true);
+//                    IT.setPower(0);
+//                    follower.followPath(Shoot2, 1.0, true);
 //                    setPathState(-1);
-//                    sleep(1000);
+//                    WaitForVelo(1800, 3, 1, null);
 //                }
 //                break;
         }
@@ -99,8 +122,9 @@ public class TestAuto extends Robot {
 
                 follower.update();
                 autonomousPathUpdate();
+//                AutoAim();
+
                 // Feedback to Driver Hub for debugging
-                telemetry.addData("VELOCITY", SR.getVelocity());
                 telemetry.addData("path state", pathState);
                 telemetry.addData("x", follower.getPose().getX());
                 telemetry.addData("y", follower.getPose().getY());
