@@ -62,9 +62,9 @@ public  class Tele extends Robot {
         double d = Math.max(Math.abs(x2) + Math.abs(y2) + Math.abs(r), 0.5);
         MovePower((y2 - x2 - r) / d, (y2 + x2 + r) / d,
                 (y2 + x2 - r) / d,  (y2 - x2 + r) / d);
-//        telemetry.addData("yaw", toDegree(yaw));
-//        telemetry.addData("setpoint", toDegree(setpoint));
-//        telemetry.addData("error", controller.Error);
+        telemetry.addData("yaw", toDegree(yaw));
+        telemetry.addData("setpoint", toDegree(setpoint));
+        telemetry.addData("error", controller.Error);
 
     }
 
@@ -73,18 +73,19 @@ public  class Tele extends Robot {
     public void runOpMode() {
         Init();
         sleep(1000);
-        while (!isStarted()) {
-            if (cam1.getAllDetections().isEmpty()) {
-            } else {
-                for (AprilTagDetection tag : cam1.getAllDetections()) {
-                    if ((tag.id == 20) || (tag.id == 24)) {
-                        double bearing = tag.ftcPose.bearing;
-                        telemetry.addData("Bearing", bearing);
-                        telemetry.update();
-                    }
-                }
-            }
-        }
+//        while (!isStarted()) {
+//            if (cam1.getAllDetections().isEmpty()) {
+//            } else {
+//                for (AprilTagDetection tag : cam1.getAllDetections()) {
+//                    if ((tag.id == 20) || (tag.id == 24)) {
+//                        double bearing = tag.ftcPose.bearing;
+//                        telemetry.addData("Bearing", bearing);
+//                        telemetry.update();
+//                    }
+//                }
+//            }
+//        }
+
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -104,6 +105,10 @@ public  class Tele extends Robot {
                     IT.setPower(0);
                 }
 
+                if (gamepad1.left_trigger > 0.2) {
+                    IT.setPower(1);
+                }
+
                 if (gamepad1.right_bumper) {
                     SL.setVelocity(1150);
                     SR.setVelocity(1150);
@@ -113,28 +118,15 @@ public  class Tele extends Robot {
                         TargetVelo = 1100;
                         HoodPos = 0;
                         SetServoPos(HoodPos, AG);
-                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
+                        WaitForVelo(TargetVelo, 3, 0.1, controller, true);
                     }
-
                     if (gamepad1.square) {
                         TargetVelo = 1250;
                         HoodPos = 0.5;
                         SetServoPos(HoodPos, AG);
-                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
+                        WaitForVelo(TargetVelo, 3, 0.1, controller, true);
 
                     }
-                    if (gamepad1.triangle) {
-                        TargetVelo = 1500;
-                        HoodPos = 0.5;
-                        SetServoPos(HoodPos, AG);
-                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
-
-                    }
-                    if (gamepad1.circle) {
-                        TargetVelo = 1630;
-                        HoodPos = 1.0;
-                        SetServoPos(HoodPos, AG);
-                        WaitForVelo(TargetVelo, 3, 0.3, controller, true);
                     }
                 }
 
@@ -147,13 +139,10 @@ public  class Tele extends Robot {
                 }
 
 
-                if (gamepad1.left_trigger > 0.2) {
+                if (gamepad1.left_bumper) {
                     S = 0.3;
                 }
                 else S = 1.0;
-
-
-
 
 //                telemetry.addData("LRM", "%6d  %6d %6d", left_encoder_pos, right_encoder_pos, center_encoder_pos);
 //                telemetry.addData("heading", toDegree(heading));
@@ -161,6 +150,7 @@ public  class Tele extends Robot {
                 telemetry.addData("pid", SL.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
                 telemetry.addData("TargetVelo ", TargetVelo);
                 telemetry.addData("Current velo ", SR.getVelocity());
+                telemetry.addData("yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
                 telemetry.update();
                 if(gamepad1.options) {
                     imu.close();
@@ -171,9 +161,9 @@ public  class Tele extends Robot {
                     sleep(50);
                     imu.resetYaw();
                     setpoint = 0;
+
                 }
             }
 
         }
     }
-}

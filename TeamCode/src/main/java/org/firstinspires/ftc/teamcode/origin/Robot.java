@@ -11,8 +11,10 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -25,7 +27,7 @@ public abstract class Robot extends LinearOpMode {
     public IMU imu;
     public VisionPortal visionPortal;
     public Servo AG, TL, TR , BubBlebee;
-    public DcMotorEx  FL, FR, BL, BR, SL, SR, IT, encoder1, encoder2, encoder3; //
+    public DcMotorEx  FL, FR, BL, BR, SL, SR, IT, ARM, encoder1, encoder2, encoder3; //
     public int TargetVelo = 0;
     public final double[] tileSize = {60.96, 60.96};
     public final int Counts_Per_Gobilda5000 = 28;
@@ -63,6 +65,7 @@ public abstract class Robot extends LinearOpMode {
         BL  = hardwareMap.get(DcMotorEx.class, "BL");    BR  = hardwareMap.get(DcMotorEx.class, "BR");
         SL  = hardwareMap.get(DcMotorEx.class, "SL");    SR  = hardwareMap.get(DcMotorEx.class, "SR");
         IT  = hardwareMap.get(DcMotorEx.class, "IT");
+        ARM  = hardwareMap.get(DcMotorEx.class, "ARM");
         AG  = hardwareMap.get(Servo.class,     "AG");    TL  = hardwareMap.get(Servo.class,     "TL");
         TR  = hardwareMap.get(Servo.class,     "TR");    BubBlebee  = hardwareMap.get(Servo.class,     "BubBlebee");
 
@@ -85,10 +88,12 @@ public abstract class Robot extends LinearOpMode {
         SL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         IT.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ARM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         SL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         SR.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         IT.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        ARM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -103,12 +108,14 @@ public abstract class Robot extends LinearOpMode {
         BL.setDirection(DcMotor.Direction.FORWARD);
         BR.setDirection(DcMotor.Direction.REVERSE);
 
-        IT.setDirection(DcMotor.Direction.REVERSE);
+        IT.setDirection(DcMotor.Direction.FORWARD);
+        ARM.setDirection(DcMotor.Direction.FORWARD);
 
         // SetBehavior Motors
         SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         IT.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ARM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
 
@@ -220,6 +227,7 @@ public abstract class Robot extends LinearOpMode {
     public void WaitForVelo(int Tvelo, int nloop, double EndLoopTime, Controller controller, boolean isAutoAim){
         TargetVelo = Tvelo;
         Dual_SHMotor();
+//        ServoController.PwmStatus.DISABLED.name("BubBlebee");
         while (!AtTargetRange(SR.getVelocity(), Tvelo, Chalee));
         for (int n = 0; n < nloop; n++){
             double loopStart = System.nanoTime() * 1E-9;
@@ -238,10 +246,10 @@ public abstract class Robot extends LinearOpMode {
 
                 if (stableCount >= requiredStableCount) {
                     // คิดว่า stable แล้ว ให้ทำ action แล้วออก
-                    SetServoPos(0.907, BubBlebee);
-                    if (nloop == 2){
-                        SetServoPos(0.87, BubBlebee);
-                    }
+                    SetServoPos(0.9, BubBlebee);
+//                    if (nloop == 2){
+//                        SetServoPos(0.915, BubBlebee);
+//                    }
                     IT.setPower(-1);
                     sleep(500);
                     IT.setPower(0);
@@ -251,10 +259,10 @@ public abstract class Robot extends LinearOpMode {
 
                 if (elapsed > EndLoopTime) {
                     // เวลาหมด ให้ทำ actionแล้วออก
-                    SetServoPos(0.907, BubBlebee);
-                    if (nloop == 2){
-                        SetServoPos(0.87, BubBlebee);
-                    }
+                    SetServoPos(0.9, BubBlebee);
+//                    if (nloop == 2){
+//                        SetServoPos(0.915, BubBlebee);
+//                    }
                     IT.setPower(-1);
                     sleep(500);
                     IT.setPower(0);

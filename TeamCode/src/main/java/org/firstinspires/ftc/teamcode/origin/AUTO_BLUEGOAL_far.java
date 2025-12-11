@@ -45,66 +45,92 @@ public class AUTO_BLUEGOAL_far extends Robot {
         BuildPaths();
         pathTimer = new Timer();
 
-        SetServoPos(0.67, TL, TR);
         SetServoPos(1.0, AG);
 
         panelsTelemetry.debug("Status", "Initialized");
         panelsTelemetry.update(telemetry);
     }
 
-    public PathChain Shoot1, Shoot2, Park3ball;
+    public PathChain Shoot1, Shoot2, Park ,Turn, collecthuman;
 
     public void BuildPaths() {
         Shoot1 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(60.000, 12.000), new Pose(60.000, 10.000))
+                        new BezierLine(new Pose(55.500, 8.450), new Pose(60.000, 15.000))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(85))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(102))
                 .build();
 
-        Park3ball = follower
+        Turn = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(60.000, 10.000),new Pose(36.000, 12.000))
+                        new BezierLine(new Pose(60.000, 12.000), new Pose(46.000, 20.000))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(90))
+                .setLinearHeadingInterpolation(Math.toRadians(102), Math.toRadians(180))
                 .build();
 
+        collecthuman = follower
+                .pathBuilder()
+                .addPath(new BezierLine(new Pose(46.000, 20.000), new Pose(11.000, 20.00)))
+                .setTangentHeadingInterpolation()
+                .build();
 
         Shoot2 = follower
                 .pathBuilder()
                 .addPath(
-                        new BezierLine(new Pose(10.000, 9.000), new Pose(60.000, 12.000))
+                        new BezierLine(new Pose(11.000, 20.00), new Pose(60.000, 20.000))
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(105))
+                .setLinearHeadingInterpolation(Math.toRadians(105), Math.toRadians(105))
                 .build();
 
-    }
+        Park = follower
+                .pathBuilder()
+                .addPath(
+                        new BezierLine(new Pose(60.000, 20.00), new Pose(40.000, 20.000))
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                .build();
+        }
+
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
                 follower.followPath(Shoot1,1.0,  true);
-                setPathState(1);
+                setPathState(4);
                 break;
             case 1:
-                if (!follower.isBusy()) {
-                    SetServoPos(1.0, AG);
 
-                    WaitForVelo(1630, 4, 5, null, false);
-                    follower.followPath(Park3ball,1.0,  true);
+                if (!follower.isBusy()) {
+                    WaitForVelo(1580, 4, 0.5, null, true);
+                    follower.followPath(Turn,1.0,  true);
+                    setPathState(2);
+                }
+                break;
+            case 2:
+                if (!follower.isBusy()) {
+                    InTakeIN();
+                    follower.followPath(collecthuman,0.7,  true);
+                    setPathState(3);
+                }
+                break;
+            case 3:
+                if (!follower.isBusy()) {
+                    IT.setPower(0);
+                    follower.followPath(Shoot2,1.0,  true);
+                    setPathState(5);
+                }
+                break;
+            case 4:
+                if (!follower.isBusy()) {
+//                    IT.setPower(0);
+//                    WaitForVelo(1580, 2, 0.5, null, true);
+//                    IT.setPower(0);
+                    follower.followPath(Park,1.0,  true);
                     setPathState(-1);
                 }
                 break;
-//            case 2:
-//                if (!follower.isBusy()) {
-//                    IT.setPower(0);
-//                    follower.followPath(Shoot2, 1.0, true);
-//                    setPathState(-1);
-//                    WaitForVelo(1800, 3, 1, null);
-//                }
-//                break;
         }
     }
 
@@ -118,8 +144,11 @@ public class AUTO_BLUEGOAL_far extends Robot {
         waitForStart();
         if (opModeIsActive()) {
             setPathState(0);
+            double StartTime = System.nanoTime() * 1E-9;
             while (opModeIsActive()) {
 
+//                if (pathState == 3 && StartTime - System.nanoTime() * 1E-9 > 3) follower.breakFollowing();
+                if(System.nanoTime() * 1E-9 - StartTime > 25.5) setPathState(4);
                 follower.update();
                 autonomousPathUpdate();
 //                AutoAim();
