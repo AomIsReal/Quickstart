@@ -59,12 +59,7 @@ public class ShooterDebugTest extends Robot {
         TurretController = new Controller(P[1], I[1], D[1], 0, 0.0, 2, 1.0, -1.0);
     }
 
-    public void ShooterControl() {
-        double power = ShooterController.Calculate(TargetVelo, SR.getVelocity());
-//        Dual_SHMotor(Range.clip(power, 0, 1));
-//        Dual_SHMotor(TargetVelo);
 
-    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -82,7 +77,7 @@ public class ShooterDebugTest extends Robot {
         while (opModeIsActive()) {
             // Manual control for testing
             if (gamepad1.a) {
-                ShooterControl();
+
                 TargetVelo = 0;
             }
 
@@ -99,16 +94,15 @@ public class ShooterDebugTest extends Robot {
 
 
 //            AutoAim();
-            SetServoPos(TurPos, TL, TR);
+
             // Apply PIDF shooter control
-            ShooterControl();
-            IT.setPower(0);
+
+
 
             // Panels debug view
             telemetryM.debug("Shooter PIDF Active");
             telemetryM.debug("Target Velocity  : " + TargetVelo);
-            telemetryM.debug("Left Velocity    : " + SL.getVelocity());
-            telemetryM.debug("Right Velocity   : " + SR.getVelocity());
+
             telemetryM.debug("Kp: " + Kp + " Ki: " + Ki + " Kd: " + Kd + " Kf: " + Kf);
             telemetryM.debug("Integral " + ShooterController.Integral);
             telemetryM.update(telemetry);

@@ -23,11 +23,11 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 public abstract class Robot extends LinearOpMode {
-    public webcam cam1;
+    //ublic webcam cam1;
     public IMU imu;
     public VisionPortal visionPortal;
-    public Servo AG, TL, TR , BubBlebee;
-    public DcMotorEx  FL, FR, BL, BR, SL, SR, IT, ARM, encoder1, encoder2, encoder3; //
+    public Servo ser1,ser2,ser3;
+    public DcMotorEx  FL, FR, BL, BR ,encoder1, encoder2, encoder3; //
     public int TargetVelo = 0;
     public final double[] tileSize = {60.96, 60.96};
     public final int Counts_Per_Gobilda5000 = 28;
@@ -59,15 +59,14 @@ public abstract class Robot extends LinearOpMode {
     public void Initialize() {
         imu = hardwareMap.get(IMU.class,       "imu");
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-        cam1 = new webcam() {};
-        cam1.init(hardwareMap, telemetryM);
+        //cam1 = new webcam() {};
+        //cam1.init(hardwareMap, telemetryM);
         FL  = hardwareMap.get(DcMotorEx.class, "FL");    FR  = hardwareMap.get(DcMotorEx.class, "FR");
         BL  = hardwareMap.get(DcMotorEx.class, "BL");    BR  = hardwareMap.get(DcMotorEx.class, "BR");
-        SL  = hardwareMap.get(DcMotorEx.class, "SL");    SR  = hardwareMap.get(DcMotorEx.class, "SR");
-        IT  = hardwareMap.get(DcMotorEx.class, "IT");
-        ARM  = hardwareMap.get(DcMotorEx.class, "ARM");
-        AG  = hardwareMap.get(Servo.class,     "AG");    TL  = hardwareMap.get(Servo.class,     "TL");
-        TR  = hardwareMap.get(Servo.class,     "TR");    BubBlebee  = hardwareMap.get(Servo.class,     "BubBlebee");
+
+
+        ser1  = hardwareMap.get(Servo.class,     "ser1"); ser2  = hardwareMap.get(Servo.class,     "ser2");
+        ser3  = hardwareMap.get(Servo.class,     "ser3");
 
 
         Last_yaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -85,57 +84,37 @@ public abstract class Robot extends LinearOpMode {
         // Reverse Servo
 
         // setMode Motors
-        SL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        SR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        IT.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        ARM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        SL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        SR.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        IT.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        ARM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+
+
 
         FL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        SL.setDirection(DcMotor.Direction.FORWARD);
-        SR.setDirection(DcMotor.Direction.REVERSE);
+
 
         FL.setDirection(DcMotor.Direction.FORWARD);
         FR.setDirection(DcMotor.Direction.REVERSE);
         BL.setDirection(DcMotor.Direction.FORWARD);
         BR.setDirection(DcMotor.Direction.REVERSE);
 
-        IT.setDirection(DcMotor.Direction.FORWARD);
-        ARM.setDirection(DcMotor.Direction.FORWARD);
+
 
         // SetBehavior Motors
-        SL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        SR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        IT.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        ARM.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-
-        SetServoPos(0.5, TL, TR);
-        SetServoPos(0, AG);
-        SetServoPos(0.85, BubBlebee);
+        SetServoPos(0.12, ser1);
+        SetServoPos(1, ser2);
+        SetServoPos(0.0, ser3);
         sleep(20);
     }
     public void Dual_SHMotor() {
 //        SL.setPower(Sh_con());
 //        SR.setPower(Sh_con());
-        SL.setVelocity(TargetVelo);
-        SR.setVelocity(TargetVelo);
+
     }
 
-    public double Sh_con() {
-        double Power = ShooterController.Calculate(TargetVelo, SR.getVelocity());
-        Power = Range.clip(Power, 0, 1);
-        return Power;
-    }
+
 
     public void Odomentry() {
         left_encoder_pos = encoder1.getCurrentPosition();
@@ -170,32 +149,7 @@ public abstract class Robot extends LinearOpMode {
         Last_yaw = yaw;
 
     }
-    public void AutoAim() {
-        if (cam1.getAllDetections().isEmpty()) {
-            } else {
-                for (AprilTagDetection tag : cam1.getAllDetections()) {
-                    if ((tag.id == 20) || (tag.id == 24)) {
-                        double bearing = tag.ftcPose.bearing + 3.173;
-                        if (Math.abs(bearing) > 1.2) {
 
-                            TurPos += bearing * 0.0007;
-
-                            // Safety: Ensure we don't tell the servo to go past physical limits
-                            TurPos = Math.max(0.0, Math.min(1.0, TurPos));
-                        }
-
-
-                        TurPos = Range.clip(TurPos, 0, 1);
-                        SetServoPos(TurPos, TL, TR);
-                        telemetry.addData("id", tag.id);
-                        telemetry.addData("Range", tag.ftcPose.range);
-                        telemetry.update();
-//                    SetServoPos(TurPos, TL, TR);
-                    }
-                }
-            }
-//        SetServoPos(HoodPos, AG);
-    }
 
 
 //    public void WaitForVelo(int Tvelo, int nloop, double EndLoopTime, Controller controller){
@@ -224,62 +178,9 @@ public abstract class Robot extends LinearOpMode {
 //        }
 //    }
 
-    public void WaitForVelo(int Tvelo, int nloop, double EndLoopTime, Controller controller, boolean isAutoAim){
-        TargetVelo = Tvelo;
-        Dual_SHMotor();
-//        ServoController.PwmStatus.DISABLED.name("BubBlebee");
-        while (!AtTargetRange(SR.getVelocity(), Tvelo, Chalee));
-        for (int n = 0; n < nloop; n++){
-            double loopStart = System.nanoTime() * 1E-9;
-            double checkStartTime = loopStart;
-            int stableCount = 0;
-            int requiredStableCount = 4;
-            while (true) {
-                if (isAutoAim) AutoAim();
-                // เปลี่ยนเป็นเช็คเวลาให้เป็นหลัก — หยุดเมื่อเกิน EndLoopTime
-                double elapsed = System.nanoTime() * 1E-9 - loopStart;
-                if (AtTargetRange(SR.getVelocity(), Tvelo, Chalee)) {
-                    stableCount++;
-                } else {
-                    stableCount = 0;
-                }
 
-                if (stableCount >= requiredStableCount) {
-                    // คิดว่า stable แล้ว ให้ทำ action แล้วออก
-                    SetServoPos(0.9, BubBlebee);
-//                    if (nloop == 2){
-//                        SetServoPos(0.915, BubBlebee);
-//                    }
-                    IT.setPower(-1);
-                    sleep(500);
-                    IT.setPower(0);
-                    if (controller != null) controller.Reset();
-                    break;
-                }
 
-                if (elapsed > EndLoopTime) {
-                    // เวลาหมด ให้ทำ actionแล้วออก
-                    SetServoPos(0.9, BubBlebee);
-//                    if (nloop == 2){
-//                        SetServoPos(0.915, BubBlebee);
-//                    }
-                    IT.setPower(-1);
-                    sleep(500);
-                    IT.setPower(0);
-                    if (controller != null) controller.Reset();
-                    break;
-                }
-            }
-        }
-    }
 
-    public void InTakeIN(){
-        if (!(M)) {
-            SetServoPos(0.85, BubBlebee);
-        }
-        IT.setPower(-1);
-
-    }
     public void MovePower(double Front_Left, double Front_Right,
                           double Back_Left,  double Back_Right) {
         FL.setPower(Front_Left);

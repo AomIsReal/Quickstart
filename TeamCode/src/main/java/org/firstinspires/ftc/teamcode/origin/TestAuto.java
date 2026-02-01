@@ -65,7 +65,7 @@ public class TestAuto extends Robot {
                 follower.followPath(path1, true);
                 TargetVelo = 1500;
                 Dual_SHMotor();
-                WaitForVelo(1500, 3, 2, null, false);
+
                 setPathState(1);
                 break;
 //            case 1:
@@ -100,7 +100,7 @@ public class TestAuto extends Robot {
                 follower.update();
                 autonomousPathUpdate();
                 // Feedback to Driver Hub for debugging
-                telemetry.addData("VELOCITY", SR.getVelocity());
+
                 telemetry.addData("path state", pathState);
                 telemetry.addData("x", follower.getPose().getX());
                 telemetry.addData("y", follower.getPose().getY());
