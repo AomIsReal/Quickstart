@@ -29,7 +29,7 @@ public  class Tele extends Robot {
     double setpoint = 0, S = 1;
     boolean  PS_Pressed = false, PSisBusy = false, T_Pressed = false, TisBusy = false, RB_Pressed = false, RBisBusy = false ;
     boolean circlePress = false;
-    boolean circleState = false;
+    boolean circleState = false; //
     boolean xPress = false;
     boolean xState = false;
 
